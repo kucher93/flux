@@ -37,6 +37,20 @@ const stream = require('node:stream/promises');
 let lock = false;
 
 /**
+ * For testing
+ */
+function unlockStreamLock() {
+  lock = false;
+}
+
+/**
+ * For testing
+ */
+function lockStreamLock() {
+  lock = true;
+}
+
+/**
  * To show the directory on the node machine where FluxOS files are stored.
  * @param {object} req Request.
  * @param {object} res Response.
@@ -1639,6 +1653,7 @@ async function restartFluxOS(req, res) {
  *
  * @param {Request} req HTTP request
  * @param {Response} res HTTP response
+ * @returns {Promise<void>}
  */
 async function streamChain(req, res) {
   if (lock) {
@@ -1668,7 +1683,7 @@ async function streamChain(req, res) {
   ip = ip.replace(/^.*:/, ''); // this is greedy, so will remove ::ffff:
 
   if (!serviceHelper.isPrivateAddress(ip)) {
-    res.statusMessage = 'Request must be from an address on the same private network as the host';
+    res.statusMessage = 'Request must be from an address on the same private network as the host.';
     res.status(403).end();
     lock = false;
     return;
@@ -1710,12 +1725,10 @@ async function streamChain(req, res) {
 
   const processedBody = serviceHelper.ensureObject(req.body);
 
-  if (processedBody) {
-    // use unsafe for the client end to illistrate that they should think twice before using
-    // it, and use safe here for readability
-    safe = processedBody.unsafe !== true;
-    compress = processedBody.compress || false;
-  }
+  // use unsafe for the client end to illistrate that they should think twice before using
+  // it, and use safe here for readability
+  safe = processedBody.unsafe !== true;
+  compress = processedBody.compress || false;
 
   if (!safe && compress) {
     res.statusMessage = 'Unable to compress blockchain in unsafe mode, it will corrupt new db.';
@@ -1798,6 +1811,7 @@ module.exports = {
   hardUpdateFlux,
   installFluxWatchTower,
   isStaticIPapi,
+  lockStreamLock,
   rebuildHome,
   reindexDaemon,
   restartBenchmark,
@@ -1814,6 +1828,7 @@ module.exports = {
   tailFluxErrorLog,
   tailFluxInfoLog,
   tailFluxWarnLog,
+  unlockStreamLock,
   updateBenchmark,
   updateDaemon,
   updateFlux,
