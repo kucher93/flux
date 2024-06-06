@@ -3,6 +3,8 @@ const path = require('path');
 module.exports = {
   root: true,
   env: {
+    // so we get BigInt etc
+    es2020: true,
     commonjs: true,
     node: true,
     mocha: true,
